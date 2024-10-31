@@ -6,9 +6,9 @@ from sklearn.metrics import f1_score, accuracy_score
 from Re_AttnSleep import AttnSleep  # Assuming this is your model class
 
 # Paths to the dataset and output directory
-train_data_path = '/gpfsnyu/scratch/rw3045/train_data_noCoordinates.npz'
-test_data_path = '/gpfsnyu/scratch/rw3045/test_data_noCoordinates.npz'
-output_dir = '/gpfsnyu/scratch/rw3045/'
+train_data_path = '/Volumes/ruoyu_hd/Projects/DScapstone/Sleep/Data/mni_sEEG/train_data_noCoordinates.npz'
+test_data_path = '/Volumes/ruoyu_hd/Projects/DScapstone/Sleep/Data/mni_sEEG/test_data_noCoordinates.npz'
+output_dir = '/Volumes/ruoyu_hd/Projects/DScapstone/Sleep/Data/mni_sEEG'
 
 # Load the datasets
 train_data = np.load(train_data_path)
@@ -18,10 +18,9 @@ X_train = train_data['X']
 y_train = train_data['y']
 X_test = test_data['X']
 y_test = test_data['y']
-X_train = X_train[:,0:3000]
-X_test = X_test[:,0:3000]
-X_train = X_train.reshape(4576, 1, 3000)
-X_test = X_test.reshape(1144, 1, 3000)
+
+X_train = X_train.reshape(4576, 1, 6800)
+X_test = X_test.reshape(1144, 1, 6800)
 
 # Initialize the model
 model = AttnSleep()
@@ -38,10 +37,13 @@ criterion = nn.CrossEntropyLoss()  # Use appropriate loss function for your task
 num_epochs = 1
 for epoch in range(num_epochs):
     model.train()
+    print('start successfully')
     optimizer.zero_grad()
     outputs = model(torch.tensor(X_train,dtype=torch.float).to(device))
+    print('gained output succ')
     loss = criterion(outputs, torch.tensor(y_train).to(device))
     loss.backward()
+    print('back propagate succ')
     optimizer.step()
 
     # Optionally print progress
