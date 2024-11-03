@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -6,9 +7,9 @@ from sklearn.metrics import f1_score, accuracy_score
 from model_DeepSleepSEEG import DeepSleepSEEG  # Assuming this is your model class
 
 # Paths to the dataset and output directory
-train_data_path = '/Volumes/ruoyu_hd/Projects/DScapstone/Sleep/Data/mni_sEEG/train_data_noCoordinates.npz'
-test_data_path = '/Volumes/ruoyu_hd/Projects/DScapstone/Sleep/Data/mni_sEEG/test_data_noCoordinates.npz'
-output_dir = '/Volumes/ruoyu_hd/Projects/DScapstone/Sleep/Data/mni_sEEG'
+train_data_path = '/gpfsnyu/scratch/rw3045/train_data_noCoordinates.npz'
+test_data_path = '/gpfsnyu/scratch/rw3045/test_data_noCoordinates.npz'
+output_dir = '/gpfsnyu/home/rw3045/DeepSleepSEEG/Baseline'
 
 # Load the datasets
 train_data = np.load(train_data_path)
@@ -18,17 +19,10 @@ X_train = train_data['X']
 y_train = train_data['y']
 X_test = test_data['X']
 y_test = test_data['y']
-
-X_train = X_train.reshape(4576, 1, 6800)
-X_test = X_test.reshape(1144, 1, 6800)
-
-X_train = X_train[0:100,:,0:3000]
-y_train = y_test[0:100]
-
-X_test = X_test[0:100,:,0:3000]
-y_test = y_test[0:100]
-
-
+X_train = X_train[:,0:3000]
+X_test = X_test[:,0:3000]
+X_train = X_train.reshape(4576, 1, 3000)
+X_test = X_test.reshape(1144, 1, 3000)
 
 # Initialize the model
 model = DeepSleepSEEG()
@@ -42,21 +36,24 @@ optimizer = optim.Adam(model.parameters())
 criterion = nn.CrossEntropyLoss()  # Use appropriate loss function for your task
 
 # Training loop (simplified)
-num_epochs = 1
+num_epochs = 10000
+loss_overtime = []
 for epoch in range(num_epochs):
     model.train()
-    print('start successfully')
     optimizer.zero_grad()
     outputs = model(torch.tensor(X_train,dtype=torch.float).to(device))
-    print('gained output succ')
     loss = criterion(outputs, torch.tensor(y_train).to(device))
+    loss_overtime.append(loss)
     loss.backward()
-    print('back propagate succ')
     optimizer.step()
 
     # Optionally print progress
-    if epoch % 1 == 0:
-        print(f'Epoch {epoch}, Loss: {loss.item()}')
+    if epoch % 1 == 100:
+        print('Epoch {}, Loss: {}'.format(epoch,loss.item()))
+
+# Save loss over time
+output_file = f"{output_dir}/loss_overtime.csv"
+pd.DataFrame(loss_overtime, columns=['Loss']).to_csv(output_file, index=False)
 
 # Evaluate the model on the test data
 model.eval()
