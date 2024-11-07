@@ -155,8 +155,39 @@ class extendedMRCNN(nn.Module):
         print(f"x4 shape: {x4.shape}")
         print(f"x5 shape: {x5.shape}")
 
+        perm_feat = 5
+        if perm_feat == 1:
+            permuted_indices = torch.randperm(x1.size(0))  # Shuffle along batch dimension
+            x1_permuted = x1[permuted_indices]
+            x_concat = torch.cat((x1_permuted, x2, x3, x4, x5), dim=1)
+            print(f"x1 shape: {x1.shape}")
+
+        elif perm_feat == 2:
+            permuted_indices = torch.randperm(x2.size(0))  # Shuffle along batch dimension
+            x2_permuted = x2[permuted_indices]
+            x_concat = torch.cat((x1, x2_permuted, x3, x4, x5), dim=1)
+            print(f"x2 shape: {x2.shape}")
+
+        elif perm_feat == 3:
+            permuted_indices = torch.randperm(x3.size(0))  # Shuffle along batch dimension
+            x3_permuted = x3[permuted_indices]
+            x_concat = torch.cat((x1, x2, x3_permuted, x4, x5), dim=1)
+            print(f"x3 shape: {x3.shape}")
+
+        elif perm_feat == 4:
+            permuted_indices = torch.randperm(x4.size(0))  # Shuffle along batch dimension
+            x4_permuted = x4[permuted_indices]
+            x_concat = torch.cat((x1, x2, x3, x4_permuted, x5), dim=1)
+            print(f"x4 shape: {x4.shape}")
+
+        elif perm_feat == 5:
+            permuted_indices = torch.randperm(x5.size(0))  # Shuffle along batch dimension
+            x5_permuted = x5[permuted_indices]
+            x_concat = torch.cat((x1, x2, x3, x4, x5_permuted), dim=1)
+            print(f"x5 shape: {x5.shape}")
+        
         # Concatenate all feature outputs along the channel dimension
-        x_concat = torch.cat((x1, x2, x3, x4, x5), dim=1)
+        # x_concat = torch.cat((x1, x2, x3, x4, x5), dim=1)
         x_concat = self.dropout(x_concat)
         x_concat = self.AFR(x_concat)
 

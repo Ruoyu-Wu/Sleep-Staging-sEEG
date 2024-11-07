@@ -36,7 +36,7 @@ optimizer = optim.Adam(model.parameters())
 criterion = nn.CrossEntropyLoss()  # Use appropriate loss function for your task
 
 # Training loop (simplified)
-num_epochs = 10000
+num_epochs = 200
 loss_overtime = []
 for epoch in range(num_epochs):
     model.train()
@@ -52,8 +52,9 @@ for epoch in range(num_epochs):
         print('Epoch {}, Loss: {}'.format(epoch,loss.item()))
 
 # Save loss over time
-output_file = f"{output_dir}/loss_overtime.csv"
-pd.DataFrame(loss_overtime, columns=['Loss']).to_csv(output_file, index=False)
+output_file = f"{output_dir}/loss_overtime_200epo.csv"
+loss_overtime_np = [loss.detach().numpy() for loss in loss_overtime]
+pd.DataFrame(loss_overtime_np, columns=['Loss']).to_csv(output_file, index=False)
 
 # Evaluate the model on the test data
 model.eval()
@@ -67,4 +68,4 @@ print(f'Test F1 Score: {f1:.2f}')
 print(f'Test Accuracy: {accuracy:.2f}')
 
 # Save the trained model
-torch.save(model.state_dict(), f'{output_dir}/trained_model.pth')
+torch.save(model.state_dict(), f'{output_dir}/trained_model_200epo.pth')
